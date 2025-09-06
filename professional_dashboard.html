@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Smart Insole Analytics</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .status-panel {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .status-card {
+            background: rgba(30, 41, 59, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .status-card h3 {
+            color: #94a3b8;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .status-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #f1f5f9;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            background: rgba(30, 41, 59, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .control-group h4 {
+            margin-bottom: 15px;
+            color: #94a3b8;
+            text-align: center;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #8b5cf6, #7c3aed);
+            color: white;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #10b981, #059669);
+            color: white;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, #f59e0b, #d97706);
+            color: white;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+            color: white;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background: rgba(30, 41, 59, 0.95);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            min-height: 400px;
+        }
+
+        .chart-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .heatmap-container {
+            position: relative;
+            width: 300px;
+            height: 400px;
+            margin: 0 auto;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .foot-outline {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            filter: brightness(0.8) contrast(1.2);
+        }
+
+        .pressure-point {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            border: 2px solid rgba(255,255,255,0.8);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+        }
+
+        .sensor-testing {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .sensor-btn {
+            padding: 10px 15px;
+            background: linear-gradient(45deg, #374151, #4b5563);
+            border: 1px solid rgba(156, 163, 175, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #f9fafb;
+        }
+
+        .sensor-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #4b5563, #6b7280);
+        }
+
+        .sensor-btn.testing {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+            animation: pulse 1s infinite alternate;
+            border-color: rgba(239, 68, 68, 0.5);
+        }
+
+        .sensor-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+        }
+
+        .connected {
+            background: linear-gradient(45deg, #10b981, #059669);
+        }
+
+        .disconnected {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .simulation {
+            background: linear-gradient(45deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        /* Simulation controls - hidden when real device connected */
+        .simulation-controls {
+            transition: all 0.5s ease;
+            opacity: 1;
+            max-height: 500px;
+            overflow: hidden;
+        }
+
+        .simulation-controls.hidden {
+            opacity: 0;
+            max-height: 0;
+            margin: 0;
+            padding: 0;
+            pointer-events: none;
+        }
+
+        .device-mode-indicator {
+            background: rgba(30, 41, 59, 0.95);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .device-mode-indicator.real-device {
+            border-color: rgba(16, 185, 129, 0.5);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .device-mode-indicator.simulation {
+            border-color: rgba(245, 158, 11, 0.5);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .control-group {
+                width: 100%;
+                max-width: 400px;
+            }
+        }
+
+        .notification {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            padding: 15px 25px;
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            color: #f1f5f9;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+            z-index: 1001;
+            display: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .notification.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .notification.error {
+            border-color: rgba(239, 68, 68, 0.5);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .notification.success {
+            border-color: rgba(16, 185, 129, 0.5);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        @keyframes slideIn {
+            from { 
+                opacity: 0; 
+                transform: translateX(100%); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateX(0); 
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🦶 Professional Smart Insole Analytics</h1>
+            <p>Real-time Gait Analysis & Pressure Monitoring System</p>
+        </div>
+
+        <div class="connection-status" id="connectionStatus">
+            <span id="connectionText">🔗 Connecting...</span>
+        </div>
+
+        <div class="notification" id="notification">
+            <span id="notificationText"></span>
+        </div>
+
+        <div class="device-mode-indicator" id="modeIndicator">
+            <div id="modeText">🎮 Simulation Mode Active</div>
+            <small id="modeDescription">Connect a real device to switch to live data mode</small>
+        </div>
+
+        <div class="status-panel">
+            <div class="status-card">
+                <h3>Total Force</h3>
+                <div class="status-value" id="totalForce">0.0 N</div>
+            </div>
+            <div class="status-card">
+                <h3>Max Pressure</h3>
+                <div class="status-value" id="maxPressure">0.0 kPa</div>
+            </div>
+            <div class="status-card">
+                <h3>Gait Phase</h3>
+                <div class="status-value" id="gaitPhase">Swing</div>
+            </div>
+            <div class="status-card">
+                <h3>Pattern</h3>
+                <div class="status-value" id="currentPattern">Walking</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <h4>📱 Device Connection</h4>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="connectBluetooth()">📲 Bluetooth</button>
+                    <button class="btn btn-secondary" onclick="connectSerial()">🔗 Serial</button>
+                    <button class="btn btn-danger" onclick="disconnect()">❌ Disconnect</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Simulation Controls - Hidden when real device connected -->
+        <div class="controls simulation-controls" id="simulationControls">
+            <div class="control-group">
+                <h4>🎮 Activity Patterns</h4>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="setPattern('walking')">🚶 Walking</button>
+                    <button class="btn btn-primary" onclick="setPattern('standing')">🧍 Standing</button>
+                    <button class="btn btn-primary" onclick="setPattern('running')">🏃 Running</button>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h4>⏯️ Simulation Control</h4>
+                <div class="btn-group">
+                    <button class="btn btn-success" onclick="playSimulation()">▶️ Play</button>
+                    <button class="btn btn-warning" onclick="pauseSimulation()">⏸️ Pause</button>
+                    <button class="btn btn-danger" onclick="clearSimulation()">🗑️ Clear</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="chart-container">
+                <div class="chart-title">📈 Real-time Sensor Data</div>
+                <div id="realtime-plot" style="width:100%; height:350px;"></div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-title">🦶 Pressure Heatmap</div>
+                <div class="heatmap-container">
+                    <img src="foot-outline.png" alt="Foot Outline" class="foot-outline" id="footImage">
+                    <div class="pressure-point" id="point0" style="left: 50%; top: 20%;"></div>
+                    <div class="pressure-point" id="point1" style="left: 35%; top: 30%;"></div>
+                    <div class="pressure-point" id="point2" style="left: 65%; top: 30%;"></div>
+                    <div class="pressure-point" id="point3" style="left: 50%; top: 40%;"></div>
+                    <div class="pressure-point" id="point4" style="left: 35%; top: 52%;"></div>
+                    <div class="pressure-point" id="point5" style="left: 65%; top: 52%;"></div>
+                    <div class="pressure-point" id="point6" style="left: 40%; top: 80%;"></div>
+                    <div class="pressure-point" id="point7" style="left: 60%; top: 80%;"></div>
+                </div>
+                
+                <div class="sensor-testing" id="sensorTesting">
+                    <button class="sensor-btn" onclick="testSensor(0)" id="testBtn0">S1</button>
+                    <button class="sensor-btn" onclick="testSensor(1)" id="testBtn1">S2</button>
+                    <button class="sensor-btn" onclick="testSensor(2)" id="testBtn2">S3</button>
+                    <button class="sensor-btn" onclick="testSensor(3)" id="testBtn3">S4</button>
+                    <button class="sensor-btn" onclick="testSensor(4)" id="testBtn4">S5</button>
+                    <button class="sensor-btn" onclick="testSensor(5)" id="testBtn5">S6</button>
+                    <button class="sensor-btn" onclick="testSensor(6)" id="testBtn6">S7</button>
+                    <button class="sensor-btn" onclick="testSensor(7)" id="testBtn7">S8</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let ws = null;
+        let sensorData = [];
+        let timeData = [];
+        let maxDataPoints = 100;
+        let isConnected = false;
+        let testingSensor = -1;
+        let isSimulationMode = true;
+        let deviceConnected = false;
+
+        // Initialize the dashboard
+        function initDashboard() {
+            initRealtimePlot();
+            connectWebSocket();
+            
+            // Handle PNG loading with better error handling
+            const footImage = document.getElementById('footImage');
+            footImage.onload = function() {
+                console.log('✅ Foot image loaded successfully');
+                this.style.display = 'block';
+            };
+            footImage.onerror = function() {
+                console.log('❌ Foot image failed to load, using fallback');
+                this.style.display = 'none';
+                // Create a simple foot outline fallback
+                const container = this.parentElement;
+                container.style.background = 'linear-gradient(ellipse, #4b5563 40%, transparent 70%)';
+                container.style.border = '2px solid #6b7280';
+            };
+        }
+
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws`;
+            
+            ws = new WebSocket(wsUrl);
+            
+            ws.onopen = function() {
+                console.log('🔌 WebSocket connected');
+                isConnected = true;
+                updateConnectionStatus(true);
+                showNotification('✅ Connected to Smart Insole Server', 'success');
+            };
+            
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                
+                if (data.action === 'connection_status') {
+                    updateDeviceConnectionStatus(data);
+                } else if (data.sensors) {
+                    updateSensorData(data);
+                    updateHeatmap(data.sensors);
+                    updateStatus(data);
+                    updateTestButtonStates(data.test_mode, data.test_sensor);
+                }
+            };
+            
+            ws.onclose = function() {
+                console.log('❌ WebSocket disconnected');
+                isConnected = false;
+                updateConnectionStatus(false);
+                showNotification('❌ Disconnected from server', 'error');
+                
+                // Attempt to reconnect after 3 seconds
+                setTimeout(connectWebSocket, 3000);
+            };
+            
+            ws.onerror = function(error) {
+                console.error('❌ WebSocket error:', error);
+                showNotification('❌ Connection error', 'error');
+            };
+        }
+
+        function updateDeviceConnectionStatus(data) {
+            isSimulationMode = data.simulation_mode;
+            deviceConnected = !isSimulationMode;
+            
+            const simulationControls = document.getElementById('simulationControls');
+            const modeIndicator = document.getElementById('modeIndicator');
+            const modeText = document.getElementById('modeText');
+            const modeDescription = document.getElementById('modeDescription');
+            const sensorTesting = document.getElementById('sensorTesting');
+            
+            if (isSimulationMode) {
+                // Show simulation controls
+                simulationControls.classList.remove('hidden');
+                modeIndicator.className = 'device-mode-indicator simulation';
+                modeText.textContent = '🎮 Simulation Mode Active';
+                modeDescription.textContent = 'Connect a real device to switch to live data mode';
+                
+                // Enable sensor testing
+                const testButtons = sensorTesting.querySelectorAll('.sensor-btn');
+                testButtons.forEach(btn => btn.disabled = false);
+            } else {
+                // Hide simulation controls
+                simulationControls.classList.add('hidden');
+                modeIndicator.className = 'device-mode-indicator real-device';
+                modeText.textContent = `📱 Live Device Connected: ${data.device_name}`;
+                modeDescription.textContent = `Real-time data from ${data.connection_type} device`;
+                
+                // Disable sensor testing in real mode
+                const testButtons = sensorTesting.querySelectorAll('.sensor-btn');
+                testButtons.forEach(btn => btn.disabled = true);
+            }
+        }
+
+        function initRealtimePlot() {
+            const traces = [];
+            const colors = ['#ef4444', '#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
+            
+            for (let i = 0; i < 8; i++) {
+                traces.push({
+                    x: [],
+                    y: [],
+                    mode: 'lines',
+                    name: `Sensor ${i + 1}`,
+                    line: {
+                        color: colors[i],
+                        width: 2
+                    }
+                });
+            }
+
+            const layout = {
+                title: '',
+                xaxis: {
+                    title: 'Time',
+                    showgrid: true,
+                    gridcolor: 'rgba(148,163,184,0.3)',
+                    color: '#94a3b8'
+                },
+                yaxis: {
+                    title: 'Capacitance (pF)',
+                    showgrid: true,
+                    gridcolor: 'rgba(148,163,184,0.3)',
+                    range: [0, 25],
+                    color: '#94a3b8'
+                },
+                plot_bgcolor: 'rgba(30,41,59,0.8)',
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                font: {
+                    color: '#f1f5f9'
+                },
+                legend: {
+                    x: 1,
+                    y: 1,
+                    bgcolor: 'rgba(30,41,59,0.9)',
+                    bordercolor: 'rgba(148,163,184,0.3)',
+                    borderwidth: 1,
+                    font: {
+                        color: '#f1f5f9'
+                    }
+                },
+                margin: { t: 20, r: 20, b: 40, l: 60 }
+            };
+
+            const config = {
+                responsive: true,
+                displayModeBar: false
+            };
+
+            Plotly.newPlot('realtime-plot', traces, layout, config);
+        }
+
+        function updateSensorData(data) {
+            const currentTime = new Date().toLocaleTimeString();
+            
+            timeData.push(currentTime);
+            sensorData.push(data.sensors);
+            
+            if (timeData.length > maxDataPoints) {
+                timeData.shift();
+                sensorData.shift();
+            }
+            
+            const updates = {
+                x: Array(8).fill(timeData),
+                y: Array(8).fill().map((_, i) => sensorData.map(readings => readings[i] || 0))
+            };
+            
+            Plotly.restyle('realtime-plot', updates);
+        }
+
+        function updateHeatmap(sensors) {
+            for (let i = 0; i < 8; i++) {
+                const point = document.getElementById(`point${i}`);
+                if (point) {
+                    const value = sensors[i] || 0;
+                    const normalized = Math.min(value / 20, 1);
+                    
+                    const red = Math.floor(255 * normalized);
+                    const green = Math.floor(255 * (1 - normalized));
+                    const blue = 100;
+                    
+                    point.style.backgroundColor = `rgb(${red}, ${green}, ${blue})`;
+                    point.style.opacity = Math.max(0.4, normalized);
+                    point.style.transform = `translate(-50%, -50%) scale(${0.8 + normalized * 0.8})`;
+                }
+            }
+        }
+
+        function updateStatus(data) {
+            const forces = data.sensors.map(cap => Math.max(0, (cap - 2) * 2.5));
+            const totalForce = forces.reduce((sum, force) => sum + force, 0);
+            const maxForce = Math.max(...forces);
+            
+            document.getElementById('totalForce').textContent = `${totalForce.toFixed(1)} N`;
+            document.getElementById('maxPressure').textContent = `${(maxForce * 10).toFixed(1)} kPa`;
+            document.getElementById('currentPattern').textContent = data.pattern || 'None';
+            
+            const heelPressure = (forces[6] + forces[7]) / 2;
+            const toePressure = (forces[0] + forces[1] + forces[2]) / 3;
+            const avgForce = totalForce / forces.length;
+            
+            let gaitPhase = 'Swing';
+            if (heelPressure > 5) {
+                gaitPhase = 'Heel Strike';
+            } else if (avgForce > 3) {
+                gaitPhase = 'Stance';
+            } else if (toePressure > 5) {
+                gaitPhase = 'Toe Off';
+            }
+            
+            document.getElementById('gaitPhase').textContent = gaitPhase;
+        }
+
+        function updateTestButtonStates(testMode, testSensor) {
+            if (isSimulationMode) {
+                for (let i = 0; i < 8; i++) {
+                    const btn = document.getElementById(`testBtn${i}`);
+                    if (btn) {
+                        btn.classList.remove('testing');
+                    }
+                }
+                
+                if (testMode && testSensor >= 0) {
+                    const btn = document.getElementById(`testBtn${testSensor}`);
+                    if (btn) {
+                        btn.classList.add('testing');
+                    }
+                    testingSensor = testSensor;
+                } else {
+                    testingSensor = -1;
+                }
+            }
+        }
+
+        function updateConnectionStatus(connected) {
+            const status = document.getElementById('connectionStatus');
+            const text = document.getElementById('connectionText');
+            
+            if (connected) {
+                if (isSimulationMode) {
+                    status.className = 'connection-status simulation';
+                    text.textContent = '🎮 Simulation';
+                } else {
+                    status.className = 'connection-status connected';
+                    text.textContent = '🟢 Live Device';
+                }
+            } else {
+                status.className = 'connection-status disconnected';
+                text.textContent = '🔴 Disconnected';
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const text = document.getElementById('notificationText');
+            
+            text.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
+        // Control functions (only work in simulation mode)
+        function setPattern(pattern) {
+            if (!isSimulationMode) {
+                showNotification('⚠️ Pattern control disabled - using real device data', 'error');
+                return;
+            }
+            
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    action: 'pattern',
+                    pattern: pattern
+                }));
+                showNotification(`🎮 Pattern set to: ${pattern}`, 'success');
+            }
+        }
+
+        function playSimulation() {
+            if (!isSimulationMode) return;
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ action: 'play' }));
+                showNotification('▶️ Simulation started', 'success');
+            }
+        }
+
+        function pauseSimulation() {
+            if (!isSimulationMode) return;
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ action: 'pause' }));
+                showNotification('⏸️ Simulation paused', 'success');
+            }
+        }
+
+        function clearSimulation() {
+            if (!isSimulationMode) return;
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ action: 'clear' }));
+                
+                sensorData = [];
+                timeData = [];
+                
+                const emptyUpdates = {
+                    x: Array(8).fill([]),
+                    y: Array(8).fill([])
+                };
+                Plotly.restyle('realtime-plot', emptyUpdates);
+                
+                showNotification('🗑️ Simulation cleared and stopped', 'success');
+            }
+        }
+
+        function testSensor(sensorIndex) {
+            if (!isSimulationMode) {
+                showNotification('⚠️ Sensor testing disabled - using real device', 'error');
+                return;
+            }
+            
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    action: 'test_sensor',
+                    sensor: sensorIndex
+                }));
+                showNotification(`🧪 Testing sensor ${sensorIndex + 1}`, 'success');
+            }
+        }
+
+        // Connection functions
+        async function connectBluetooth() {
+            try {
+                showNotification('📱 Searching for Bluetooth devices...', 'info');
+                const response = await fetch('/api/connect/bluetooth', {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                
+                if (result.status === 'connected') {
+                    showNotification(`📱 Connected: ${result.device}`, 'success');
+                } else {
+                    showNotification(`❌ ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showNotification('❌ Bluetooth connection failed', 'error');
+            }
+        }
+
+        async function connectSerial() {
+            try {
+                showNotification('🔗 Scanning serial ports...', 'info');
+                const response = await fetch('/api/connect/serial', {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                
+                if (result.status === 'connected') {
+                    showNotification(`🔗 Connected: ${result.device}`, 'success');
+                } else {
+                    showNotification(`❌ ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showNotification('❌ Serial connection failed', 'error');
+            }
+        }
+
+        async function disconnect() {
+            try {
+                const response = await fetch('/api/disconnect', {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                showNotification('❌ Device disconnected - returning to simulation mode', 'success');
+            } catch (error) {
+                showNotification('❌ Disconnect failed', 'error');
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>
