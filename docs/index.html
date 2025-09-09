@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Smart Insole Analytics - Demo</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .demo-banner {
+            background: linear-gradient(45deg, #8b5cf6, #06b6d4);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .status-panel {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .status-card {
+            background: rgba(30, 41, 59, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            min-width: 200px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .status-card h3 {
+            color: #60a5fa;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .status-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .status-connected .status-value {
+            color: #10b981;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background: rgba(30, 41, 59, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .chart-container h2 {
+            color: #60a5fa;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.3em;
+        }
+
+        .foot-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+        }
+
+        #footImage {
+            max-width: 100%;
+            max-height: 400px;
+            opacity: 0.8;
+        }
+
+        .sensor-overlay {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid white;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .controls-section {
+            background: rgba(30, 41, 59, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls-section h2 {
+            color: #60a5fa;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.3em;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn:hover {
+            background: linear-gradient(45deg, #2563eb, #1e40af);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #10b981, #059669);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, #f59e0b, #d97706);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .sensor-tests {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: linear-gradient(45deg, #10b981, #059669);
+        }
+
+        .notification.error {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+        }
+
+        .notification.info {
+            background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-group {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .sensor-tests {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .analytics-panel {
+            background: rgba(30, 41, 59, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .metric-card {
+            text-align: center;
+            padding: 15px;
+            background: rgba(55, 65, 81, 0.5);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #60a5fa;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 0.9em;
+            color: #9ca3af;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🦶 Professional Smart Insole Analytics</h1>
+            <p>Real-time Gait Analysis & Pressure Monitoring System</p>
+        </div>
+
+        <div class="demo-banner">
+            🎮 DEMO MODE - This is a standalone demonstration running client-side simulation
+        </div>
+
+        <div class="status-panel">
+            <div class="status-card status-connected">
+                <h3>🔌 Demo Status</h3>
+                <div class="status-value">ACTIVE</div>
+                <div class="status-label">Simulation Running</div>
+            </div>
+            <div class="status-card">
+                <h3>📱 Mode</h3>
+                <div class="status-value" style="color: #8b5cf6;">DEMO</div>
+                <div class="status-label">Client-side Simulation</div>
+            </div>
+            <div class="status-card">
+                <h3>📊 Data Rate</h3>
+                <div class="status-value" style="color: #06b6d4;">50 Hz</div>
+                <div class="status-label">Samples/Second</div>
+            </div>
+            <div class="status-card">
+                <h3>🎯 Gait Phase</h3>
+                <div class="status-value" id="gaitPhase" style="color: #10b981;">Stance</div>
+                <div class="status-label">Current Phase</div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div class="chart-container">
+                <h2>📈 Real-time Sensor Data</h2>
+                <div id="realtimePlot" style="height: 400px;"></div>
+            </div>
+            
+            <div class="chart-container">
+                <h2>🦶 Pressure Heatmap</h2>
+                <div class="foot-container">
+                    <img id="footImage" src="foot-outline.png" alt="Foot Outline">
+                    <div class="sensor-overlay" id="sensor0" style="top: 25%; left: 45%;"></div>
+                    <div class="sensor-overlay" id="sensor1" style="top: 20%; left: 50%;"></div>
+                    <div class="sensor-overlay" id="sensor2" style="top: 25%; left: 55%;"></div>
+                    <div class="sensor-overlay" id="sensor3" style="top: 45%; left: 40%;"></div>
+                    <div class="sensor-overlay" id="sensor4" style="top: 45%; left: 50%;"></div>
+                    <div class="sensor-overlay" id="sensor5" style="top: 45%; left: 60%;"></div>
+                    <div class="sensor-overlay" id="sensor6" style="top: 75%; left: 45%;"></div>
+                    <div class="sensor-overlay" id="sensor7" style="top: 75%; left: 55%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="analytics-panel">
+            <h2 style="color: #60a5fa; text-align: center; margin-bottom: 20px;">📊 Real-time Analytics</h2>
+            <div class="analytics-grid">
+                <div class="metric-card">
+                    <div class="metric-value" id="totalForce">0.0</div>
+                    <div class="metric-label">Total Force (N)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="maxPressure">0.0</div>
+                    <div class="metric-label">Max Pressure (kPa)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="centerPressureX">0.0</div>
+                    <div class="metric-label">CoP X (mm)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="centerPressureY">0.0</div>
+                    <div class="metric-label">CoP Y (mm)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="contactArea">0.0</div>
+                    <div class="metric-label">Contact Area (%)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="stepCount">0</div>
+                    <div class="metric-label">Step Count</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls-section">
+            <h2>🎮 Simulation Controls</h2>
+            
+            <div class="control-group">
+                <button class="btn" onclick="setGaitPattern('walking')">🚶 Walking</button>
+                <button class="btn" onclick="setGaitPattern('standing')">🧍 Standing</button>
+                <button class="btn" onclick="setGaitPattern('running')">🏃 Running</button>
+            </div>
+            
+            <div class="control-group">
+                <button class="btn btn-success" onclick="playSimulation()">▶️ Play</button>
+                <button class="btn btn-warning" onclick="pauseSimulation()">⏸️ Pause</button>
+                <button class="btn btn-danger" onclick="clearSimulation()">🗑️ Clear</button>
+            </div>
+            
+            <h3 style="text-align: center; margin: 20px 0; color: #60a5fa;">🧪 Individual Sensor Testing</h3>
+            <div class="sensor-tests">
+                <button class="btn" onclick="testSensor(0)">S1</button>
+                <button class="btn" onclick="testSensor(1)">S2</button>
+                <button class="btn" onclick="testSensor(2)">S3</button>
+                <button class="btn" onclick="testSensor(3)">S4</button>
+                <button class="btn" onclick="testSensor(4)">S5</button>
+                <button class="btn" onclick="testSensor(5)">S6</button>
+                <button class="btn" onclick="testSensor(6)">S7</button>
+                <button class="btn" onclick="testSensor(7)">S8</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Global variables
+        let sensorData = [[], [], [], [], [], [], [], []];
+        let timeData = [];
+        let currentPattern = 'walking';
+        let isPlaying = true;
+        let testMode = false;
+        let testSensor = -1;
+        let stepCount = 0;
+        let simulationTime = 0;
+        
+        // Gait patterns
+        const gaitPatterns = {
+            walking: {
+                phases: ['heel_strike', 'stance', 'toe_off', 'swing'],
+                duration: 1.0, // seconds per cycle
+                sensors: {
+                    heel_strike: [2, 5, 15, 8, 6, 4, 25, 20],
+                    stance: [8, 12, 20, 15, 18, 12, 30, 25],
+                    toe_off: [15, 20, 25, 10, 8, 6, 10, 5],
+                    swing: [0, 0, 2, 0, 0, 0, 0, 0]
+                }
+            },
+            standing: {
+                phases: ['stance'],
+                duration: 0.5,
+                sensors: {
+                    stance: [10, 12, 15, 12, 15, 10, 20, 18]
+                }
+            },
+            running: {
+                phases: ['heel_strike', 'stance', 'toe_off', 'swing'],
+                duration: 0.6,
+                sensors: {
+                    heel_strike: [5, 10, 25, 15, 12, 8, 35, 30],
+                    stance: [15, 20, 30, 25, 28, 20, 40, 35],
+                    toe_off: [25, 30, 35, 15, 12, 10, 15, 8],
+                    swing: [0, 0, 0, 0, 0, 0, 0, 0]
+                }
+            }
+        };
+
+        // Initialize the dashboard
+        function initDashboard() {
+            initRealtimePlot();
+            startSimulation();
+            showNotification('🚀 Demo started successfully!', 'success');
+        }
+
+        // Initialize real-time plot
+        function initRealtimePlot() {
+            const traces = [];
+            const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'];
+            
+            for (let i = 0; i < 8; i++) {
+                traces.push({
+                    x: [],
+                    y: [],
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: \`Sensor \${i + 1}\`,
+                    line: {
+                        color: colors[i],
+                        width: 2
+                    }
+                });
+            }
+
+            const layout = {
+                title: {
+                    text: 'Sensor Readings Over Time',
+                    font: { color: '#e2e8f0' }
+                },
+                xaxis: {
+                    title: 'Time (s)',
+                    color: '#e2e8f0',
+                    gridcolor: '#374151'
+                },
+                yaxis: {
+                    title: 'Pressure (kPa)',
+                    color: '#e2e8f0',
+                    gridcolor: '#374151',
+                    range: [0, 50]
+                },
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                font: { color: '#e2e8f0' },
+                legend: {
+                    orientation: 'h',
+                    y: -0.2
+                }
+            };
+
+            Plotly.newPlot('realtimePlot', traces, layout, {responsive: true});
+        }
+
+        // Generate simulated sensor data
+        function generateSensorData() {
+            const pattern = gaitPatterns[currentPattern];
+            const cycleTime = simulationTime % pattern.duration;
+            const phaseIndex = Math.floor((cycleTime / pattern.duration) * pattern.phases.length);
+            const currentPhase = pattern.phases[phaseIndex];
+            
+            // Update gait phase display
+            document.getElementById('gaitPhase').textContent = currentPhase.replace('_', ' ').toUpperCase();
+            
+            const baseSensorValues = pattern.sensors[currentPhase];
+            const sensorValues = [];
+            
+            for (let i = 0; i < 8; i++) {
+                if (testMode && testSensor === i) {
+                    // Test mode - activate specific sensor
+                    sensorValues.push(25 + Math.random() * 10);
+                } else if (testMode) {
+                    // Test mode - other sensors low
+                    sensorValues.push(Math.random() * 2);
+                } else {
+                    // Normal simulation with noise
+                    const noise = (Math.random() - 0.5) * 4;
+                    sensorValues.push(Math.max(0, baseSensorValues[i] + noise));
+                }
+            }
+            
+            return sensorValues;
+        }
+
+        // Update sensor visualization
+        function updateSensorVisualization(sensorValues) {
+            for (let i = 0; i < 8; i++) {
+                const sensorElement = document.getElementById(\`sensor\${i}\`);
+                const value = sensorValues[i];
+                const intensity = Math.min(value / 30, 1); // Normalize to 0-1
+                
+                // Color based on pressure intensity
+                const hue = 240 - (intensity * 240); // Blue to red
+                const saturation = 70 + (intensity * 30); // 70-100%
+                const lightness = 50 + (intensity * 30); // 50-80%
+                
+                sensorElement.style.backgroundColor = \`hsl(\${hue}, \${saturation}%, \${lightness}%)\`;
+                sensorElement.style.boxShadow = \`0 0 \${10 + intensity * 20}px hsla(\${hue}, \${saturation}%, \${lightness}%, 0.6)\`;
+                sensorElement.style.transform = \`translate(-50%, -50%) scale(\${0.8 + intensity * 0.4})\`;
+            }
+        }
+
+        // Update analytics
+        function updateAnalytics(sensorValues) {
+            // Calculate metrics
+            const totalForce = sensorValues.reduce((sum, val) => sum + val, 0) * 0.1; // Convert to Newtons
+            const maxPressure = Math.max(...sensorValues);
+            const activeCount = sensorValues.filter(val => val > 2).length;
+            const contactArea = (activeCount / 8) * 100;
+            
+            // Center of pressure calculation (simplified)
+            let copX = 0, copY = 0, totalPressure = 0;
+            const sensorPositions = [
+                {x: 45, y: 25}, {x: 50, y: 20}, {x: 55, y: 25},
+                {x: 40, y: 45}, {x: 50, y: 45}, {x: 60, y: 45},
+                {x: 45, y: 75}, {x: 55, y: 75}
+            ];
+            
+            for (let i = 0; i < 8; i++) {
+                copX += sensorPositions[i].x * sensorValues[i];
+                copY += sensorPositions[i].y * sensorValues[i];
+                totalPressure += sensorValues[i];
+            }
+            
+            if (totalPressure > 0) {
+                copX /= totalPressure;
+                copY /= totalPressure;
+            }
+            
+            // Update display
+            document.getElementById('totalForce').textContent = totalForce.toFixed(1);
+            document.getElementById('maxPressure').textContent = maxPressure.toFixed(1);
+            document.getElementById('centerPressureX').textContent = copX.toFixed(1);
+            document.getElementById('centerPressureY').textContent = copY.toFixed(1);
+            document.getElementById('contactArea').textContent = contactArea.toFixed(1);
+            document.getElementById('stepCount').textContent = stepCount;
+        }
+
+        // Update plot
+        function updatePlot() {
+            const sensorValues = generateSensorData();
+            const currentTime = simulationTime;
+            
+            // Add new data
+            timeData.push(currentTime);
+            for (let i = 0; i < 8; i++) {
+                sensorData[i].push(sensorValues[i]);
+            }
+            
+            // Keep only last 300 points (6 seconds at 50Hz)
+            const maxPoints = 300;
+            if (timeData.length > maxPoints) {
+                timeData.shift();
+                for (let i = 0; i < 8; i++) {
+                    sensorData[i].shift();
+                }
+            }
+            
+            // Update plot
+            const update = {
+                x: [timeData, timeData, timeData, timeData, timeData, timeData, timeData, timeData],
+                y: sensorData
+            };
+            
+            Plotly.redraw('realtimePlot', update);
+            
+            // Update other visualizations
+            updateSensorVisualization(sensorValues);
+            updateAnalytics(sensorValues);
+            
+            // Detect steps (simplified)
+            if (sensorValues[6] > 15 && sensorValues[7] > 15 && simulationTime % 1.0 < 0.02) {
+                stepCount++;
+            }
+        }
+
+        // Simulation control
+        function startSimulation() {
+            setInterval(() => {
+                if (isPlaying) {
+                    simulationTime += 0.02; // 50Hz
+                    updatePlot();
+                }
+            }, 20); // 50Hz update rate
+        }
+
+        // Control functions
+        function setGaitPattern(pattern) {
+            currentPattern = pattern;
+            testMode = false;
+            showNotification(\`🎮 Pattern set to: \${pattern}\`, 'success');
+        }
+
+        function playSimulation() {
+            isPlaying = true;
+            testMode = false;
+            showNotification('▶️ Simulation started', 'success');
+        }
+
+        function pauseSimulation() {
+            isPlaying = false;
+            showNotification('⏸️ Simulation paused', 'success');
+        }
+
+        function clearSimulation() {
+            sensorData = [[], [], [], [], [], [], [], []];
+            timeData = [];
+            simulationTime = 0;
+            stepCount = 0;
+            testMode = false;
+            
+            // Clear plot
+            Plotly.redraw('realtimePlot');
+            
+            showNotification('🗑️ Data cleared', 'success');
+        }
+
+        function testSensor(sensorIndex) {
+            testMode = true;
+            testSensor = sensorIndex;
+            showNotification(\`🧪 Testing sensor \${sensorIndex + 1}\`, 'success');
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = \`notification \${type}\`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            initDashboard();
+        });
+    </script>
+</body>
+</html>
