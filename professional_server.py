@@ -588,9 +588,9 @@ class SmartInsoleServer:
 
 async def main():
     print("🚀 Professional Smart Insole Analytics Server Starting...")
-    print("📊 Dashboard: http://${os.environ.get("RENDER_EXTERNAL_URL", "localhost:8000")}")
+    print("📊 Dashboard: http://localhost:8000")
     print("🖼️ PNG Image Support: ENABLED")
-    print("🔗 API: http://${os.environ.get("RENDER_EXTERNAL_URL", "localhost:8000")}/api/")
+    print("🔗 API: http://localhost:8000/api/")
     print("📱 Real Bluetooth Detection: ENABLED" if BLUETOOTH_AVAILABLE else "📱 Bluetooth: Install pybluez")
     print("🔗 Real Serial Detection: ENABLED" if SERIAL_AVAILABLE else "🔗 Serial: Install pyserial")
     print("🎮 Simulation Mode: Active (will hide when real device connects)")
